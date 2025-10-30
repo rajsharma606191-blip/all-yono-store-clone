@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Yono Store - Real Cash Games</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f0f4ff, #e4ecff);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background-color: #4b6ef5;
+      color: white;
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .game-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 15px;
+    }
+    .game-card h3 {
+      margin: 0;
+      color: #333;
+    }
+    .game-card p {
+      margin: 5px 0;
+      color: #555;
+    }
+    .game-card a {
+      display: inline-block;
+      margin-top: 10px;
+      background-color: #4b6ef5;
+      color: white;
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 10px;
+    }
+    footer {
+      margin-top: 30px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>🎮 All Yono Store - Real Cash Earning Games</header>
+
+  <div id="gameList">⏳ Loading games...</div>
+
+  <footer>Made with ❤️</footer>
+
+  <!-- Firebase JS SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAmDBCboeelfIsdzJyrt0IfSYBNo9IjDLc",
+      authDomain: "yono-games-all-rummy.firebaseapp.com",
+      projectId: "yono-games-all-rummy",
+      storageBucket: "yono-games-all-rummy.firebasestorage.app",
+      messagingSenderId: "13928839359",
+      appId: "1:13928839359:web:fd5ee6d3eea4330954ee0a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadGames() {
+      const listDiv = document.getElementById("gameList");
+      listDiv.innerHTML = "⏳ Loading games...";
+      try {
+        const querySnapshot = await getDocs(collection(db, "game_links"));
+        listDiv.innerHTML = "";
+        if (querySnapshot.empty) {
+          listDiv.innerHTML = "<p>😕 No games found in Firebase (collection 'game_links' is empty).</p>";
+          return;
+        }
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          listDiv.innerHTML += `
+            <div class="game-card">
+              <h3>${data.name || "Untitled Game"}</h3>
+              <p><b>Bonus:</b> ${data.bonus || "-"}</p>
+              <p><b>Withdraw:</b> ${data.withdraw || "-"}</p>
+              <a href="${data.link || '#'}" target="_blank">Play Now</a>
+            </div>
+          `;
+        });
+      } catch (err) {
+        console.error(err);
+        listDiv.innerHTML = "<p>🚫 Error loading games. Check Firebase rules / config in console.</p>";
+      }
+    }
+
+    loadGames();
+  </script>
+</body>
+</html>
