@@ -5,7 +5,35 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>All Yono Store - Home</title>
   <style>
-    body { font-family: Arial, sans-serif; padding:20px; max-width:900px; margin:auto; }
+    body<!-- Firebase JS SDK -->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAmDBCboeelfIsdzJyrt0IfSYBNo9IjDLc",
+    authDomain: "yono-games-all-rummy.firebaseapp.com",
+    projectId: "yono-games-all-rummy",
+    storageBucket: "yono-games-all-rummy.firebasestorage.app",
+    messagingSenderId: "13928839359",
+    appId: "1:13928839359:web:fd5ee6d3eea4330954ee0a"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Example: get all game links from collection
+  async function loadLinks() {
+    const querySnapshot = await getDocs(collection(db, "game_links"));
+    querySnapshot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+    });
+  }
+
+  loadLinks();
+</script> { font-family: Arial, sans-serif; padding:20px; max-width:900px; margin:auto; }
     header { text-align:center; }
     .apps { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
     .card { border:1px solid #ddd; padding:12px; border-radius:8px; width:220px; }
