@@ -13,7 +13,23 @@
     .badge { background:#0d6efd; color:#fff; padding:6px 8px; border-radius:6px; display:inline-block; margin-top:8px;}
   </style>
 </head>
-<body>
+<body><script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD1w0f5W4V2aEVJCWYLHypL...",
+    authDomain: "all-yono-store-275d4.firebaseapp.com",
+    projectId: "all-yono-store-275d4",
+    storageBucket: "all-yono-store-275d4.appspot.com",
+    messagingSenderId: "925295687385",
+    appId: "1:925295687385:web:cc83ae4d9b...",
+    measurementId: "G-CQW5XRXPQ3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
   <header>
     <h1>All Yono Store</h1>
     <p>Real cash earning apps — listings from admin panel</p>
