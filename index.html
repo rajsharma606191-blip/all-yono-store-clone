@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>All Yono Store - Home</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding:20px; max-width:900px; margin:auto; }
+    header { text-align:center; }
+    .apps { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+    .card { border:1px solid #ddd; padding:12px; border-radius:8px; width:220px; }
+    .card img { width:100%; height:120px; object-fit:cover; border-radius:6px; }
+    .badge { background:#0d6efd; color:#fff; padding:6px 8px; border-radius:6px; display:inline-block; margin-top:8px;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>All Yono Store</h1>
+    <p>Real cash earning apps — listings from admin panel</p>
+    <p><a href="admin.html">Admin panel</a></p>
+  </header>
+
+  <section id="updates">
+    <h2>Latest updates</h2>
+    <div id="updatesText">Loading...</div>
+  </section>
+
+  <section>
+    <h2>Apps</h2>
+    <div class="apps" id="appsList">Loading apps...</div>
+  </section>
+
+  <!-- Firebase (paste your generated <script type="module"> config here) -->
+  <!-- Replace the firebaseConfig object below with your own from Firebase console -->
+  <script type="module">
+    // Example: paste the script-module provided by Firebase console here.
+    // --- START PLACEHOLDER ---
+    // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    // import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    // const firebaseConfig = { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", databaseURL: "https://YOUR_DB.firebaseio.com", projectId: "YOUR_PROJ_ID", storageBucket: "YOUR_BUCKET.appspot.com", messagingSenderId: "YOUR_ID", appId: "YOUR_APPID" };
+    // const app = initializeApp(firebaseConfig);
+    // const db = getDatabase(app);
+    // --- END PLACEHOLDER ---
+
+    // The code below expects the database structure:
+    // /updates/content  -> string
+    // /apps/{autoId} -> { name, imageUrl, description, downloadLink, bonus, withdraw }
+
+    // When you paste real config and enable Realtime Database, uncomment the following lines:
+    /*
+    const updatesRef = ref(db, 'updates/content');
+    onValue(updatesRef, snapshot => {
+      const v = snapshot.val() || '';
+      document.getElementById('updatesText').innerText = v;
+    });
+
+    const appsRef = ref(db, 'apps');
+    onValue(appsRef, snapshot => {
+      const list = snapshot.val() || {};
+      const container = document.getElementById('appsList');
+      container.innerHTML = '';
+      Object.keys(list).forEach(k => {
+        const app = list[k];
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <img src="${app.imageUrl || 'https://via.placeholder.com/300x200'}" alt="">
+          <h3>${app.name || ''}</h3>
+          <p>${app.description || ''}</p>
+          <div class="badge">Bonus: ₹${app.bonus || 0}</div>
+          <p><a href="${app.downloadLink || '#'}" target="_blank">Download</a></p>
+        `;
+        container.appendChild(div);
+      });
+    });
+    */
+    document.getElementById('updatesText').innerText = 'Please add your Firebase configuration in index.html to load live data.';
+    document.getElementById('appsList').innerText = 'Please add your Firebase configuration in index.html to load apps.';
+  </script>
+</body>
+</html>
