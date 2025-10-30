@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - All Yono Store</title>
+  <style>
+    body{font-family:Arial, sans-serif; padding:16px; max-width:720px; margin:auto;}
+    .card{background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.1);margin-bottom:12px;}
+    input, textarea, select {width:100%; padding:8px; margin:6px 0; border-radius:6px; border:1px solid #ccc;}
+    button{padding:10px 14px; border:none; background:#0d6efd; color:#fff; border-radius:6px;}
+    img.preview{max-width:200px; display:block; margin-top:8px;}
+  </style>
+</head>
+<body>
+  <h1>Admin Panel</h1>
+  <div id="authBox" class="card">
+    <h3>Login</h3>
+    <input id="email" placeholder="Admin email" type="email" />
+    <input id="password" placeholder="Password" type="password" />
+    <button id="loginBtn">Login</button>
+    <p id="authMsg" style="color:green"></p>
+  </div>
+
+  <div id="panel" style="display:none;">
+    <div class="card">
+      <h3>Save site update</h3>
+      <textarea id="updateText" rows="3" placeholder="Write update for homepage"></textarea>
+      <button id="saveUpdate">Save Update</button>
+    </div>
+
+    <div class="card">
+      <h3>Add App (image will upload to Firebase Storage)</h3>
+      <input id="appName" placeholder="App name" />
+      <input id="appDesc" placeholder="Short description" />
+      <input id="appBonus" placeholder="Bonus (number)" type="number" />
+      <input id="appWithdraw" placeholder="Min withdraw (number)" type="number" />
+      <input id="appLink" placeholder="Download link (Play Store or APK)" />
+      <input id="appImage" type="file" accept="image/*" />
+      <img id="preview" class="preview" src="" alt="" style="display:none;" />
+      <button id="addAppBtn">Add App</button>
+      <p id="status"></p>
+    </div>
+
+    <div class="card">
+      <h3>Sign out</h3>
+      <button id="signOutBtn">Sign Out</button>
+    </div>
+  </div>
+
+  <script type="module">
+    // ---------- IMPORTANT ----------
+    // Replace the firebaseConfig object below with YOUR firebase config (from console "Add web app")
+    // Then enable: Authentication (Email/Password), Realtime Database (or Firestore) and Storage in Firebase console.
+    // --------------------------------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "https://YOUR_DB.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_BUCKET.appspot.com",
+      messagingSenderId: "YOUR_MSG_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+
+    // Login
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const pw = document.getElementById('password').value;
+      signInWithEmailAndPassword(auth, email, pw)
+        .then(u => {
+          document.getElementById('authBox').style.display = 'none';
+          document.getElementById('panel').style.display = 'block';
+          document.getElementById('authMsg').innerText = '';
+          loadUpdates();
+        })
+        .catch(e => {
+          document.getElementById('authMsg').style.color='red';
+          document.getElementById('authMsg').innerText = 'Login failed: ' + e.message;
+        });
+    });
+
+    // Sign out
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      document.getElementById('panel').style.display = 'none';
+      document.getElementById('authBox').style.display = 'block';
+    });
+
+    // Save update text
+    document.getElementById('saveUpdate').addEventListener('click', () => {
+      const text = document.getElementById('updateText').value;
+      set(ref(db, 'updates/content'), text)
+        .then(()=> alert('Update saved'))
+        .catch(e=> alert('Error: '+e.message));
+    });
+
+    // image preview
+    document.getElementById('appImage').addEventListener('change', (ev) => {
+      const f = ev.target.files[0];
+      if(!f) return;
+      const url = URL.createObjectURL(f);
+      const img = document.getElementById('preview');
+      img.src = url; img.style.display='block';
+    });
+
+    // Add App (upload image -> storage, then save metadata to /apps)
+    document.getElementById('addAppBtn').addEventListener('click', async () => {
+      const name = document.getElementById('appName').value || '';
+      const desc = document.getElementById('appDesc').value || '';
+      const bonus = Number(document.getElementById('appBonus').value) || 0;
+      const withdraw = Number(document.getElementById('appWithdraw').value) || 0;
+      const link = document.getElementById('appLink').value || '#';
+      const file = document.getElementById('appImage').files[0];
+
+      if(!name || !file) { alert('Please add name and image'); return; }
+      document.getElementById('status').innerText = 'Uploading image...';
+
+      const storageRef = sref(storage, 'app-images/' + Date.now() + '-' + file.name);
+      try {
+        const snap = await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(snap.ref);
+        // push to database
+        const newRef = push(ref(db, 'apps'));
+        await set(newRef, { name, description: desc, bonus, withdraw, downloadLink: link, imageUrl: url, time: Date.now() });
+        document.getElementById('status').innerText = 'App added successfully ✔️';
+        // clear form
+        document.getElementById('appName').value=''; document.getElementById('appDesc').value=''; document.getElementById('appBonus').value=''; document.getElementById('appWithdraw').value='';
+        document.getElementById('appLink').value=''; document.getElementById('appImage').value=''; document.getElementById('preview').style.display='none';
+      } catch(e) {
+        document.getElementById('status').innerText = 'Error: ' + e.message;
+      }
+    });
+
+    // load existing update text
+    function loadUpdates(){
+      const uref = ref(db, 'updates/content');
+      onValue(uref, snap => {
+        const v = snap.val() || '';
+        document.getElementById('updateText').value = v;
+      });
+    }
+
+  </script>
+</body>
+</html>
